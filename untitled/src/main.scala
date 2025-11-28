@@ -1,12 +1,11 @@
 object AnalisisDePrecios {
 
-  // 1. Definición de las estructuras de datos
+  // 1. Modelos
   case class Producto(nombre: String, categoria: String, precios: List[Double])
   case class ProductoPromedio(producto: Producto, promedio: Double)
 
   def main(args: Array[String]): Unit = {
 
-    // 2. Datos de prueba (Inventario completo)
     val inventario: List[Producto] = List(
       Producto("Producto 1", "Categoria 1", List(10.5, 11.5, 12.5, 13.5)),
       Producto("Producto 2", "Categoria 2", List(11.0, 12.0, 13.0, 14.0)),
@@ -59,44 +58,43 @@ object AnalisisDePrecios {
       Producto("Producto 49", "Categoria 4", List(34.5, 35.5, 36.5, 37.5)),
       Producto("Producto 50", "Categoria 5", List(35.0, 36.0, 37.0, 38.0))
     )
-    val resultado = encontrarProductoMasValioso(inventario, 20.0, 2)
 
-    println("-" * 50)
-    println(s"RESULTADO DEL ANÁLISIS")
-    println("-" * 50)
-    println(s"Producto Ganador: ${resultado.producto.nombre}")
-    println(s"Categoría:        ${resultado.producto.categoria}")
-    println(s"Promedio:         ${resultado.promedio}")
-    println("-" * 50)
+    val valorBase = 20.0
+    val minPrecios = 2
+
+    encontrarProductoMasValioso(inventario, valorBase, minPrecios) match {
+      case Some(resultado) =>
+        println("-" * 50)
+        println("RESULTADO DEL ANÁLISIS")
+        println("-" * 50)
+        println(s"Producto Ganador: ${resultado.producto.nombre}")
+        println(s"Categoría:        ${resultado.producto.categoria}")
+        println(s"Promedio:         ${resultado.promedio}")
+        println("-" * 50)
+
+      case None =>
+        println("No se encontraron productos que cumplan con los criterios.")
+    }
   }
+
   def encontrarProductoMasValioso(
                                    lista: List[Producto],
                                    valorBase: Double,
                                    minPrecios: Int
-                                 ): ProductoPromedio = {
+                                 ): Option[ProductoPromedio] = {
 
-
-    val productosFiltrados = lista.filter { p =>
-      val tieneSuficientesPrecios = p.precios.length >= minPrecios
-
-      val superaPrecioBase = p.precios.exists(_ > valorBase)
-
-      tieneSuficientesPrecios && superaPrecioBase
+    val productosValidos = lista.filter { p =>
+      p.precios.size >= minPrecios &&
+        p.precios.exists(_ > valorBase)
     }
 
-    if (productosFiltrados.isEmpty) {
-      throw new RuntimeException("No se encontraron productos que cumplan con los criterios.")
-    }
+    if (productosValidos.isEmpty) return None
 
-
-    val listaConPromedios: List[ProductoPromedio] = productosFiltrados.map { p =>
-      val suma = p.precios.sum
-      val cantidad = p.precios.length
-      val promedio = suma / cantidad
+    val promedios = productosValidos.map { p =>
+      val promedio = p.precios.sum / p.precios.size
       ProductoPromedio(p, promedio)
     }
-    val masValioso = listaConPromedios.maxBy(_.promedio)
 
-    masValioso
+    Some(promedios.maxBy(_.promedio))
   }
 }
