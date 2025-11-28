@@ -1,12 +1,11 @@
 object AnalisisDePrecios {
 
-  // 1. Definición de las estructuras de datos
   case class Producto(nombre: String, categoria: String, precios: List[Double])
   case class ProductoPromedio(producto: Producto, promedio: Double)
 
   def main(args: Array[String]): Unit = {
 
-    // 2. Datos de prueba (Inventario completo)
+  
     val inventario: List[Producto] = List(
       Producto("Producto 1", "Categoria 1", List(10.5, 11.5, 12.5, 13.5)),
       Producto("Producto 2", "Categoria 2", List(11.0, 12.0, 13.0, 14.0)),
